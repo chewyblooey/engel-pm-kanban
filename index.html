@@ -75,27 +75,61 @@
 
 <script>
 const DATA = {
-  lastUpdated: "2026-02-18T17:50:00-08:00",
-  projects: {
+  "lastUpdated": "2026-02-18T20:46:27-08:00",
+  "projects": {
     "All Requests": {
-      tabClass: "tab-all",
-      tasks: [
-        // Tasks will be populated from form submissions via the sheet sync
-        // Example structure:
-        // { status: "new-request", desc: "Social Media Post — Project 1", requester: "Bryan", project: "Project 1", assetType: "Social Media Post", desiredDate: "2026-03-01", submittedDate: "2026-02-18", notes: "", briefLink: "", docs: [] }
-      ]
+      "tabClass": "tab-all",
+      "tasks": []
     },
     "Project 1": {
-      tabClass: "tab-p1",
-      tasks: []
+      "tabClass": "tab-p1",
+      "tasks": [
+        {
+          "status": "pm-review",
+          "desc": "Video — Project 1",
+          "requester": "Bryan Test 1 ",
+          "project": "Project 1",
+          "assetType": "Video",
+          "desiredDate": "2026-02-19",
+          "submittedDate": "2026-02-18",
+          "notes": "",
+          "briefLink": "https://docs.google.com/open?id=16uucQ2ufNImyBpKKm_96TjXdIP8UQSU_XAA6j9URrXo",
+          "docs": [
+            {
+              "name": "Creative Brief",
+              "url": "https://docs.google.com/open?id=16uucQ2ufNImyBpKKm_96TjXdIP8UQSU_XAA6j9URrXo",
+              "icon": "📄"
+            }
+          ]
+        }
+      ]
     },
     "Project 2": {
-      tabClass: "tab-p2",
-      tasks: []
+      "tabClass": "tab-p2",
+      "tasks": [
+        {
+          "status": "pm-review",
+          "desc": "Social Media Post — Project 2",
+          "requester": "Bryan Test 2 ",
+          "project": "Project 2",
+          "assetType": "Social Media Post",
+          "desiredDate": "2026-02-26",
+          "submittedDate": "2026-02-18",
+          "notes": "",
+          "briefLink": "https://docs.google.com/open?id=1VctH0dEXQZpDxpEKopVDjnehEDGGfMiiHOvFTo9nRrY",
+          "docs": [
+            {
+              "name": "Creative Brief",
+              "url": "https://docs.google.com/open?id=1VctH0dEXQZpDxpEKopVDjnehEDGGfMiiHOvFTo9nRrY",
+              "icon": "📄"
+            }
+          ]
+        }
+      ]
     },
     "Project 3": {
-      tabClass: "tab-p3",
-      tasks: []
+      "tabClass": "tab-p3",
+      "tasks": []
     }
   }
 };
