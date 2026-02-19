@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Engel Collective — Creative PM Board</title>
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --border: #30363d;
+    --text: #e6edf3; --text-dim: #8b949e; --accent: #58a6ff;
+    --green: #3fb950; --yellow: #d29922; --orange: #db6d28;
+    --red: #f85149; --purple: #bc8cff; --pink: #f778ba;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  header { padding: 24px 32px 0; }
+  h1 { font-size: 22px; font-weight: 600; }
+  #subtitle { color: var(--text-dim); font-size: 13px; margin-top: 4px; }
+  .tabs { display: flex; gap: 4px; padding: 16px 32px 0; flex-wrap: wrap; }
+  .tab { padding: 8px 16px; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 13px; font-weight: 500; background: var(--surface); color: var(--text-dim); border: 1px solid var(--border); border-bottom: none; transition: all 0.15s; }
+  .tab:hover { color: var(--text); }
+  .tab.active { background: var(--bg); color: var(--accent); border-color: var(--accent); border-bottom: 2px solid var(--bg); position: relative; top: 1px; }
+  #board { display: flex; gap: 16px; padding: 16px 32px 32px; overflow-x: auto; min-height: 500px; border-top: 1px solid var(--border); }
+  .column { flex: 0 0 260px; background: var(--surface); border-radius: 8px; padding: 12px; border: 1px solid var(--border); }
+  .column h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .column h2 .count { background: var(--border); color: var(--text-dim); font-size: 11px; padding: 1px 7px; border-radius: 10px; }
+  .col-new-request h2 { color: var(--accent); }
+  .col-pm-review h2 { color: var(--yellow); }
+  .col-creative-team h2 { color: var(--purple); }
+  .col-internal-review h2 { color: var(--orange); }
+  .col-client-review h2 { color: var(--pink); }
+  .col-final-delivery h2 { color: var(--green); }
+  .col-done h2 { color: var(--text-dim); }
+  .card { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s, transform 0.1s; }
+  .card:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .card p { font-size: 13px; line-height: 1.4; }
+  .card .meta { font-size: 11px; color: var(--text-dim); margin-top: 6px; }
+  .card .meta span { margin-right: 10px; }
+  .card .has-details { font-size: 11px; color: var(--accent); margin-top: 6px; }
+  .empty-col { color: var(--text-dim); font-size: 12px; font-style: italic; text-align: center; padding: 20px 0; }
+  .drag-over { outline: 2px dashed var(--accent); outline-offset: -2px; }
+  .dragging { opacity: 0.4; }
+
+  /* Modal */
+  #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; }
+  #modal-overlay.active { display: flex; }
+  #modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative; }
+  #modal-box h3 { font-size: 16px; margin-bottom: 8px; }
+  #modal-close { position: absolute; top: 12px; right: 16px; cursor: pointer; font-size: 20px; color: var(--text-dim); background: none; border: none; }
+  #modal-close:hover { color: var(--text); }
+  .modal-status { display: inline-block; font-size: 12px; padding: 2px 10px; border-radius: 12px; background: var(--border); color: var(--text-dim); margin-bottom: 12px; }
+  .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); margin: 16px 0 6px; }
+  .notes { font-size: 13px; line-height: 1.5; color: var(--text); }
+  .no-content { font-size: 13px; color: var(--text-dim); font-style: italic; }
+  .docs-list { list-style: none; }
+  .docs-list li { margin: 4px 0; }
+  .docs-list a { color: var(--accent); text-decoration: none; font-size: 13px; }
+  .docs-list a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🎨 Engel Collective — Creative PM Board</h1>
+  <div id="subtitle"></div>
+</header>
+<div class="tabs" id="tabs"></div>
+<div id="board"></div>
+
+<div id="modal-overlay">
+  <div id="modal-box">
+    <button id="modal-close">&times;</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script>
+const DATA = {
+  lastUpdated: "2026-02-18T17:50:00-08:00",
+  projects: {
+    "All Requests": {
+      tabClass: "tab-all",
+      tasks: [
+        // Tasks will be populated from form submissions via the sheet sync
+        // Example structure:
+        // { status: "new-request", desc: "Social Media Post — Project 1", requester: "Bryan", project: "Project 1", assetType: "Social Media Post", desiredDate: "2026-03-01", submittedDate: "2026-02-18", notes: "", briefLink: "", docs: [] }
+      ]
+    },
+    "Project 1": {
+      tabClass: "tab-p1",
+      tasks: []
+    },
+    "Project 2": {
+      tabClass: "tab-p2",
+      tasks: []
+    },
+    "Project 3": {
+      tabClass: "tab-p3",
+      tasks: []
+    }
+  }
+};
+
+const statuses = ['new-request','pm-review','creative-team','internal-review','client-review','final-delivery','done'];
+const statusLabels = {
+  'new-request': 'New Request',
+  'pm-review': 'PM Review',
+  'creative-team': 'Creative Team',
+  'internal-review': 'Internal Review',
+  'client-review': 'Client Review',
+  'final-delivery': 'Final Delivery',
+  'done': 'Done'
+};
+const formatDate = d => new Date(d).toLocaleString('en-US',{dateStyle:'medium',timeStyle:'short'});
+
+const tabsEl = document.getElementById('tabs');
+const boardEl = document.getElementById('board');
+const overlay = document.getElementById('modal-overlay');
+const modalContent = document.getElementById('modal-content');
+const subtitle = document.getElementById('subtitle');
+
+subtitle.textContent = 'Last updated: ' + formatDate(DATA.lastUpdated);
+
+overlay.addEventListener('click', e => { if(e.target===overlay) overlay.classList.remove('active'); });
+document.getElementById('modal-close').addEventListener('click', () => overlay.classList.remove('active'));
+document.addEventListener('keydown', e => { if(e.key==='Escape') overlay.classList.remove('active'); });
+
+let activeTab = null;
+
+function getAllTasks() {
+  let all = [];
+  Object.keys(DATA.projects).forEach(name => {
+    if (name !== "All Requests") {
+      DATA.projects[name].tasks.forEach(t => all.push(t));
+    }
+  });
+  return all;
+}
+
+function showProject(name) {
+  const tasks = name === "All Requests" ? getAllTasks() : DATA.projects[name].tasks;
+  activeTab = name;
+
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.tab[data-project="${name}"]`).classList.add('active');
+
+  boardEl.innerHTML = '';
+  let draggedTask = null;
+
+  statuses.forEach(s => {
+    const col = document.createElement('div');
+    col.className = 'column col-' + s;
+    col.dataset.status = s;
+    const colTasks = tasks.filter(t => t.status === s);
+    col.innerHTML = `<h2>${statusLabels[s]}<span class="count">${colTasks.length}</span></h2>`;
+    if(colTasks.length === 0) col.innerHTML += '<div class="empty-col">No tasks</div>';
+
+    col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drag-over'); });
+    col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+    col.addEventListener('drop', e => {
+      e.preventDefault();
+      col.classList.remove('drag-over');
+      if(draggedTask && draggedTask.status !== s) {
+        draggedTask.status = s;
+        showProject(activeTab);
+      }
+    });
+
+    colTasks.forEach(t => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.draggable = true;
+      card.addEventListener('dragstart', () => { draggedTask = t; card.classList.add('dragging'); });
+      card.addEventListener('dragend', () => { draggedTask = null; card.classList.remove('dragging'); });
+
+      let metaHtml = '<div class="meta">';
+      if (t.requester) metaHtml += `<span>👤 ${t.requester}</span>`;
+      if (t.assetType) metaHtml += `<span>📎 ${t.assetType}</span>`;
+      if (t.desiredDate) metaHtml += `<span>📅 ${t.desiredDate}</span>`;
+      metaHtml += '</div>';
+
+      const hasInfo = (t.notes || (t.docs && t.docs.length > 0) || t.briefLink);
+      card.innerHTML = `<p>${t.desc}</p>${metaHtml}${hasInfo ? '<div class="has-details">📎 Click for details</div>' : ''}`;
+      card.addEventListener('click', () => openCard(t));
+      col.appendChild(card);
+    });
+    boardEl.appendChild(col);
+  });
+  window.location.hash = encodeURIComponent(name);
+}
+
+function openCard(task) {
+  let html = `<h3>${task.desc}</h3>`;
+  html += `<span class="modal-status">${statusLabels[task.status]}</span>`;
+
+  if (task.requester || task.project || task.assetType || task.desiredDate) {
+    html += `<div class="section-label">Request Details</div>`;
+    html += '<div class="notes">';
+    if (task.requester) html += `<strong>Requester:</strong> ${task.requester}<br>`;
+    if (task.project) html += `<strong>Project:</strong> ${task.project}<br>`;
+    if (task.assetType) html += `<strong>Asset Type:</strong> ${task.assetType}<br>`;
+    if (task.desiredDate) html += `<strong>Desired Date:</strong> ${task.desiredDate}<br>`;
+    if (task.submittedDate) html += `<strong>Submitted:</strong> ${task.submittedDate}<br>`;
+    html += '</div>';
+  }
+
+  html += `<div class="section-label">Notes</div>`;
+  html += task.notes ? `<div class="notes">${task.notes}</div>` : `<div class="no-content">No notes yet</div>`;
+
+  if (task.briefLink) {
+    html += `<div class="section-label">Creative Brief</div>`;
+    html += `<div class="notes"><a href="${task.briefLink}" target="_blank" style="color:var(--accent)">📄 Open Brief</a></div>`;
+  }
+
+  html += `<div class="section-label">Documents</div>`;
+  if(task.docs && task.docs.length > 0) {
+    html += '<ul class="docs-list">';
+    task.docs.forEach(d => { html += `<li><a href="${d.url}" target="_blank">${d.icon} ${d.name}</a></li>`; });
+    html += '</ul>';
+  } else {
+    html += '<div class="no-content">No documents yet</div>';
+  }
+  modalContent.innerHTML = html;
+  overlay.classList.add('active');
+}
+
+// Build tabs
+Object.keys(DATA.projects).forEach(name => {
+  const tab = document.createElement('div');
+  tab.className = 'tab';
+  tab.dataset.project = name;
+  const tasks = name === "All Requests" ? getAllTasks() : DATA.projects[name].tasks;
+  tab.textContent = name + (tasks.length > 0 ? ` (${tasks.length})` : '');
+  tab.addEventListener('click', () => showProject(name));
+  tabsEl.appendChild(tab);
+});
+
+// Show first tab or hash
+const hashProject = decodeURIComponent(window.location.hash.slice(1));
+showProject(DATA.projects[hashProject] ? hashProject : Object.keys(DATA.projects)[0]);
+</script>
+</body>
+</html>
