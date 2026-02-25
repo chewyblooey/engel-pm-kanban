@@ -3,79 +3,87 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Engel Collective — Creative PM Board</title>
+<title>ProRata — Content Production Pipeline</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0d1117; --surface: #161b22; --border: #30363d;
-    --text: #e6edf3; --text-dim: #8b949e; --accent: #58a6ff;
-    --green: #3fb950; --yellow: #d29922; --orange: #db6d28;
-    --red: #f85149; --purple: #bc8cff; --pink: #f778ba;
+    --highlighter-yellow: #FFFE41;
+    --charcoal: #282826;
+    --chalk: #F7FCF0;
+    --graphite: #D8D8D0;
+    --electric-blue: #2828D0;
+    --cyan: #28A5D0;
+    --neon-green: #8CFF4A;
+    --bg: var(--charcoal);
+    --surface: #333330;
+    --border: #444440;
+    --text: var(--chalk);
+    --text-dim: var(--graphite);
+    --accent: var(--highlighter-yellow);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-  header { padding: 24px 32px 0; }
-  h1 { font-size: 22px; font-weight: 600; }
-  #subtitle { color: var(--text-dim); font-size: 13px; margin-top: 4px; }
-  .tabs { display: flex; gap: 4px; padding: 16px 32px 0; flex-wrap: wrap; }
-  .tab { padding: 8px 16px; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 13px; font-weight: 500; background: var(--surface); color: var(--text-dim); border: 1px solid var(--border); border-bottom: none; transition: all 0.15s; }
-  .tab:hover { color: var(--text); }
-  .tab.active { background: var(--bg); color: var(--accent); border-color: var(--accent); border-bottom: 2px solid var(--bg); position: relative; top: 1px; }
+  body { font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  body::before { content: ''; display: block; height: 3px; width: 100%; background: var(--highlighter-yellow); }
+  header { padding: 24px 32px 0; display: flex; align-items: baseline; gap: 16px; }
+  h1 { font-family: 'Instrument Serif', 'Georgia', serif; font-size: 26px; font-weight: 400; letter-spacing: -0.02em; color: var(--chalk); }
+  h1 span { color: var(--highlighter-yellow); }
+  #subtitle { color: var(--text-dim); font-size: 12px; font-weight: 400; letter-spacing: 0.04em; text-transform: uppercase; }
+  .tabs { display: flex; gap: 4px; padding: 20px 32px 0; flex-wrap: wrap; }
+  .tab { padding: 8px 16px; border-radius: 2px 2px 0 0; cursor: pointer; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; background: var(--surface); color: var(--text-dim); border: 1px solid var(--border); border-bottom: none; transition: all 0.15s; }
+  .tab:hover { color: var(--chalk); }
+  .tab.active { background: var(--bg); color: var(--highlighter-yellow); border-color: var(--highlighter-yellow); border-bottom: 2px solid var(--bg); position: relative; top: 1px; }
   #board { display: flex; gap: 16px; padding: 16px 32px 32px; overflow-x: auto; min-height: 500px; border-top: 1px solid var(--border); }
-  .column { flex: 0 0 260px; background: var(--surface); border-radius: 8px; padding: 12px; border: 1px solid var(--border); }
-  .column h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-  .column h2 .count { background: var(--border); color: var(--text-dim); font-size: 11px; padding: 1px 7px; border-radius: 10px; }
-  .col-new-request h2 { color: var(--accent); }
-  .col-pm-review h2 { color: var(--yellow); }
-  .col-creative-team h2 { color: var(--purple); }
-  .col-internal-review h2 { color: var(--orange); }
-  .col-client-review h2 { color: var(--pink); }
-  .col-final-delivery h2 { color: var(--green); }
-  .col-done h2 { color: var(--text-dim); }
-  .card { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s, transform 0.1s; }
-  .card:hover { border-color: var(--accent); transform: translateY(-1px); }
-  .card p { font-size: 13px; line-height: 1.4; }
-  .card .meta { font-size: 11px; color: var(--text-dim); margin-top: 6px; }
+  .column { flex: 0 0 260px; background: var(--surface); border-radius: 4px; padding: 12px; border: 1px solid var(--border); }
+  .column h2 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .column h2 .count { background: var(--border); color: var(--text-dim); font-size: 10px; padding: 1px 7px; border-radius: 2px; }
+  .col-new-request h2 { color: var(--highlighter-yellow); }
+  .col-pm-review h2 { color: var(--cyan); }
+  .col-creative-team h2 { color: var(--electric-blue); color: #7878ff; }
+  .col-internal-review h2 { color: var(--neon-green); }
+  .col-client-review h2 { color: var(--highlighter-yellow); }
+  .col-final-delivery h2 { color: var(--cyan); }
+  .col-done h2 { color: var(--graphite); }
+  .card { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s, transform 0.1s; border-left: 3px solid var(--highlighter-yellow); }
+  .card:hover { border-color: var(--highlighter-yellow); transform: translateY(-1px); }
+  .card p { font-size: 13px; line-height: 1.4; font-weight: 500; }
+  .card .meta { font-size: 11px; color: var(--text-dim); margin-top: 6px; font-weight: 400; }
   .card .meta span { margin-right: 10px; }
-  .card .has-details { font-size: 11px; color: var(--accent); margin-top: 6px; }
+  .card .has-details { font-size: 11px; color: var(--highlighter-yellow); margin-top: 6px; }
   .empty-col { color: var(--text-dim); font-size: 12px; font-style: italic; text-align: center; padding: 20px 0; }
-  .drag-over { outline: 2px dashed var(--accent); outline-offset: -2px; }
+  .drag-over { outline: 2px dashed var(--highlighter-yellow); outline-offset: -2px; }
   .dragging { opacity: 0.4; }
-
-  /* Modal */
-  #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; }
+  #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(40,40,38,0.85); z-index: 100; align-items: center; justify-content: center; }
   #modal-overlay.active { display: flex; }
-  #modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative; }
-  #modal-box h3 { font-size: 16px; margin-bottom: 8px; }
+  #modal-box { background: var(--surface); border: 1px solid var(--highlighter-yellow); border-radius: 4px; padding: 24px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative; }
+  #modal-box h3 { font-family: 'Instrument Serif', serif; font-size: 20px; font-weight: 400; margin-bottom: 8px; color: var(--chalk); }
   #modal-close { position: absolute; top: 12px; right: 16px; cursor: pointer; font-size: 20px; color: var(--text-dim); background: none; border: none; }
-  #modal-close:hover { color: var(--text); }
-  .modal-status { display: inline-block; font-size: 12px; padding: 2px 10px; border-radius: 12px; background: var(--border); color: var(--text-dim); margin-bottom: 12px; }
-  .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); margin: 16px 0 6px; }
+  #modal-close:hover { color: var(--highlighter-yellow); }
+  .modal-status { display: inline-block; font-size: 11px; padding: 2px 10px; border-radius: 2px; background: var(--highlighter-yellow); color: var(--charcoal); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+  .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--highlighter-yellow); margin: 16px 0 6px; font-weight: 700; }
   .notes { font-size: 13px; line-height: 1.5; color: var(--text); }
   .no-content { font-size: 13px; color: var(--text-dim); font-style: italic; }
   .docs-list { list-style: none; }
   .docs-list li { margin: 4px 0; }
-  .docs-list a { color: var(--accent); text-decoration: none; font-size: 13px; }
+  .docs-list a { color: var(--highlighter-yellow); text-decoration: none; font-size: 13px; }
   .docs-list a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
 <header>
-  <h1>🎨 Engel Collective — Creative PM Board</h1>
+  <h1><span>[</span> ProRata <span>]</span> Content Production Pipeline</h1>
   <div id="subtitle"></div>
 </header>
 <div class="tabs" id="tabs"></div>
 <div id="board"></div>
-
 <div id="modal-overlay">
   <div id="modal-box">
     <button id="modal-close">&times;</button>
     <div id="modal-content"></div>
   </div>
 </div>
-
 <script>
 const DATA = {
-  "lastUpdated": "2026-02-19T17:52:48-08:00",
+  "lastUpdated": "2026-02-23T16:00:00-08:00",
   "projects": {
     "All Requests": {
       "tabClass": "tab-all",
@@ -172,142 +180,79 @@ const DATA = {
 };
 
 const statuses = ['new-request','pm-review','creative-team','internal-review','client-review','final-delivery','done'];
-const statusLabels = {
-  'new-request': 'New Request',
-  'pm-review': 'PM Review',
-  'creative-team': 'Creative Team',
-  'internal-review': 'Internal Review',
-  'client-review': 'Client Review',
-  'final-delivery': 'Final Delivery',
-  'done': 'Done'
-};
+const statusLabels = {'new-request':'New Request','pm-review':'PM Review','creative-team':'Creative Team','internal-review':'Internal Review','client-review':'Client Review','final-delivery':'Final Delivery','done':'Done'};
 const formatDate = d => new Date(d).toLocaleString('en-US',{dateStyle:'medium',timeStyle:'short'});
-
 const tabsEl = document.getElementById('tabs');
 const boardEl = document.getElementById('board');
 const overlay = document.getElementById('modal-overlay');
 const modalContent = document.getElementById('modal-content');
 const subtitle = document.getElementById('subtitle');
-
 subtitle.textContent = 'Last updated: ' + formatDate(DATA.lastUpdated);
-
 overlay.addEventListener('click', e => { if(e.target===overlay) overlay.classList.remove('active'); });
 document.getElementById('modal-close').addEventListener('click', () => overlay.classList.remove('active'));
 document.addEventListener('keydown', e => { if(e.key==='Escape') overlay.classList.remove('active'); });
-
 let activeTab = null;
-
-function getAllTasks() {
-  let all = [];
-  Object.keys(DATA.projects).forEach(name => {
-    if (name !== "All Requests") {
-      DATA.projects[name].tasks.forEach(t => all.push(t));
-    }
-  });
-  return all;
-}
-
+function getAllTasks() { let all = []; Object.keys(DATA.projects).forEach(n => { if(n!=="All Requests") DATA.projects[n].tasks.forEach(t => all.push(t)); }); return all; }
 function showProject(name) {
-  const tasks = name === "All Requests" ? getAllTasks() : DATA.projects[name].tasks;
+  const tasks = name==="All Requests" ? getAllTasks() : DATA.projects[name].tasks;
   activeTab = name;
-
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelector(`.tab[data-project="${name}"]`).classList.add('active');
-
   boardEl.innerHTML = '';
   let draggedTask = null;
-
   statuses.forEach(s => {
-    const col = document.createElement('div');
-    col.className = 'column col-' + s;
-    col.dataset.status = s;
-    const colTasks = tasks.filter(t => t.status === s);
+    const col = document.createElement('div'); col.className = 'column col-'+s; col.dataset.status = s;
+    const colTasks = tasks.filter(t => t.status===s);
     col.innerHTML = `<h2>${statusLabels[s]}<span class="count">${colTasks.length}</span></h2>`;
-    if(colTasks.length === 0) col.innerHTML += '<div class="empty-col">No tasks</div>';
-
+    if(!colTasks.length) col.innerHTML += '<div class="empty-col">No tasks</div>';
     col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drag-over'); });
     col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
-    col.addEventListener('drop', e => {
-      e.preventDefault();
-      col.classList.remove('drag-over');
-      if(draggedTask && draggedTask.status !== s) {
-        draggedTask.status = s;
-        showProject(activeTab);
-      }
-    });
-
+    col.addEventListener('drop', e => { e.preventDefault(); col.classList.remove('drag-over'); if(draggedTask&&draggedTask.status!==s){draggedTask.status=s;showProject(activeTab);} });
     colTasks.forEach(t => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.draggable = true;
-      card.addEventListener('dragstart', () => { draggedTask = t; card.classList.add('dragging'); });
-      card.addEventListener('dragend', () => { draggedTask = null; card.classList.remove('dragging'); });
-
-      let metaHtml = '<div class="meta">';
-      if (t.requester) metaHtml += `<span>👤 ${t.requester}</span>`;
-      if (t.assetType) metaHtml += `<span>📎 ${t.assetType}</span>`;
-      if (t.desiredDate) metaHtml += `<span>📅 ${t.desiredDate}</span>`;
-      metaHtml += '</div>';
-
-      const hasInfo = (t.notes || (t.docs && t.docs.length > 0) || t.briefLink);
-      card.innerHTML = `<p>${t.desc}</p>${metaHtml}${hasInfo ? '<div class="has-details">📎 Click for details</div>' : ''}`;
-      card.addEventListener('click', () => openCard(t));
+      const card = document.createElement('div'); card.className='card'; card.draggable=true;
+      card.addEventListener('dragstart',()=>{draggedTask=t;card.classList.add('dragging');});
+      card.addEventListener('dragend',()=>{draggedTask=null;card.classList.remove('dragging');});
+      let m='<div class="meta">';
+      if(t.requester) m+=`<span>👤 ${t.requester}</span>`;
+      if(t.assetType) m+=`<span>📎 ${t.assetType}</span>`;
+      if(t.desiredDate) m+=`<span>📅 ${t.desiredDate}</span>`;
+      m+='</div>';
+      const hasInfo=(t.notes||(t.docs&&t.docs.length>0)||t.briefLink);
+      card.innerHTML=`<p>${t.desc}</p>${m}${hasInfo?'<div class="has-details">[ Click for details ]</div>':''}`;
+      card.addEventListener('click',()=>openCard(t));
       col.appendChild(card);
     });
     boardEl.appendChild(col);
   });
-  window.location.hash = encodeURIComponent(name);
+  window.location.hash=encodeURIComponent(name);
 }
-
 function openCard(task) {
-  let html = `<h3>${task.desc}</h3>`;
-  html += `<span class="modal-status">${statusLabels[task.status]}</span>`;
-
-  if (task.requester || task.project || task.assetType || task.desiredDate) {
-    html += `<div class="section-label">Request Details</div>`;
-    html += '<div class="notes">';
-    if (task.requester) html += `<strong>Requester:</strong> ${task.requester}<br>`;
-    if (task.project) html += `<strong>Project:</strong> ${task.project}<br>`;
-    if (task.assetType) html += `<strong>Asset Type:</strong> ${task.assetType}<br>`;
-    if (task.desiredDate) html += `<strong>Desired Date:</strong> ${task.desiredDate}<br>`;
-    if (task.submittedDate) html += `<strong>Submitted:</strong> ${task.submittedDate}<br>`;
-    html += '</div>';
+  let h=`<h3>${task.desc}</h3><span class="modal-status">${statusLabels[task.status]}</span>`;
+  if(task.requester||task.project||task.assetType||task.desiredDate){
+    h+=`<div class="section-label">Request Details</div><div class="notes">`;
+    if(task.requester) h+=`<strong>Requester:</strong> ${task.requester}<br>`;
+    if(task.project) h+=`<strong>Project:</strong> ${task.project}<br>`;
+    if(task.assetType) h+=`<strong>Asset Type:</strong> ${task.assetType}<br>`;
+    if(task.desiredDate) h+=`<strong>Desired Date:</strong> ${task.desiredDate}<br>`;
+    if(task.submittedDate) h+=`<strong>Submitted:</strong> ${task.submittedDate}<br>`;
+    h+='</div>';
   }
-
-  html += `<div class="section-label">Notes</div>`;
-  html += task.notes ? `<div class="notes">${task.notes}</div>` : `<div class="no-content">No notes yet</div>`;
-
-  if (task.briefLink) {
-    html += `<div class="section-label">Creative Brief</div>`;
-    html += `<div class="notes"><a href="${task.briefLink}" target="_blank" style="color:var(--accent)">📄 Open Brief</a></div>`;
-  }
-
-  html += `<div class="section-label">Documents</div>`;
-  if(task.docs && task.docs.length > 0) {
-    html += '<ul class="docs-list">';
-    task.docs.forEach(d => { html += `<li><a href="${d.url}" target="_blank">${d.icon} ${d.name}</a></li>`; });
-    html += '</ul>';
-  } else {
-    html += '<div class="no-content">No documents yet</div>';
-  }
-  modalContent.innerHTML = html;
-  overlay.classList.add('active');
+  h+=`<div class="section-label">Notes</div>`;
+  h+=task.notes?`<div class="notes">${task.notes}</div>`:`<div class="no-content">No notes yet</div>`;
+  if(task.briefLink) h+=`<div class="section-label">Creative Brief</div><div class="notes"><a href="${task.briefLink}" target="_blank" style="color:var(--highlighter-yellow)">📄 Open Brief</a></div>`;
+  h+=`<div class="section-label">Documents</div>`;
+  if(task.docs&&task.docs.length>0){h+='<ul class="docs-list">';task.docs.forEach(d=>{h+=`<li><a href="${d.url}" target="_blank">${d.icon} ${d.name}</a></li>`;});h+='</ul>';}
+  else h+='<div class="no-content">No documents yet</div>';
+  modalContent.innerHTML=h;overlay.classList.add('active');
 }
-
-// Build tabs
-Object.keys(DATA.projects).forEach(name => {
-  const tab = document.createElement('div');
-  tab.className = 'tab';
-  tab.dataset.project = name;
-  const tasks = name === "All Requests" ? getAllTasks() : DATA.projects[name].tasks;
-  tab.textContent = name + (tasks.length > 0 ? ` (${tasks.length})` : '');
-  tab.addEventListener('click', () => showProject(name));
-  tabsEl.appendChild(tab);
+Object.keys(DATA.projects).forEach(name=>{
+  const tab=document.createElement('div');tab.className='tab';tab.dataset.project=name;
+  const tasks=name==="All Requests"?getAllTasks():DATA.projects[name].tasks;
+  tab.textContent=name+(tasks.length>0?` (${tasks.length})`:'');
+  tab.addEventListener('click',()=>showProject(name));tabsEl.appendChild(tab);
 });
-
-// Show first tab or hash
-const hashProject = decodeURIComponent(window.location.hash.slice(1));
-showProject(DATA.projects[hashProject] ? hashProject : Object.keys(DATA.projects)[0]);
+const hp=decodeURIComponent(window.location.hash.slice(1));
+showProject(DATA.projects[hp]?hp:Object.keys(DATA.projects)[0]);
 </script>
 </body>
 </html>
