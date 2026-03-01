@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ProRata — Content Production Pipeline</title>
+<title>CR — Creative Operations Pipeline</title>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -14,6 +14,8 @@
     --electric-blue: #2828D0;
     --cyan: #28A5D0;
     --neon-green: #8CFF4A;
+    --rush-red: #FF4A4A;
+    --high-amber: #FFB84A;
     --bg: var(--charcoal);
     --surface: #333330;
     --border: #444440;
@@ -24,56 +26,90 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
   body::before { content: ''; display: block; height: 3px; width: 100%; background: var(--highlighter-yellow); }
-  header { padding: 24px 32px 0; display: flex; align-items: baseline; gap: 16px; }
+
+  header { padding: 24px 32px 0; display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
   h1 { font-family: 'Instrument Serif', 'Georgia', serif; font-size: 26px; font-weight: 400; letter-spacing: -0.02em; color: var(--chalk); }
   h1 span { color: var(--highlighter-yellow); }
   #subtitle { color: var(--text-dim); font-size: 12px; font-weight: 400; letter-spacing: 0.04em; text-transform: uppercase; }
+  #refresh-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text-dim); padding: 4px 12px; font-size: 11px; cursor: pointer; border-radius: 2px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; margin-left: auto; }
+  #refresh-btn:hover { color: var(--highlighter-yellow); border-color: var(--highlighter-yellow); }
+  #refresh-btn.loading { opacity: 0.5; pointer-events: none; }
+
+  .stats-bar { display: flex; gap: 16px; padding: 16px 32px 0; flex-wrap: wrap; }
+  .stat { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+  .stat strong { color: var(--chalk); font-size: 18px; display: block; font-family: 'Instrument Serif', serif; }
+  .stat.rush strong { color: var(--rush-red); }
+  .stat.high strong { color: var(--high-amber); }
+  .stat.flagged strong { color: var(--highlighter-yellow); }
+
   .tabs { display: flex; gap: 4px; padding: 20px 32px 0; flex-wrap: wrap; }
   .tab { padding: 8px 16px; border-radius: 2px 2px 0 0; cursor: pointer; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; background: var(--surface); color: var(--text-dim); border: 1px solid var(--border); border-bottom: none; transition: all 0.15s; }
   .tab:hover { color: var(--chalk); }
   .tab.active { background: var(--bg); color: var(--highlighter-yellow); border-color: var(--highlighter-yellow); border-bottom: 2px solid var(--bg); position: relative; top: 1px; }
+
   #board { display: flex; gap: 16px; padding: 16px 32px 32px; overflow-x: auto; min-height: 500px; border-top: 1px solid var(--border); }
   .column { flex: 0 0 260px; background: var(--surface); border-radius: 4px; padding: 12px; border: 1px solid var(--border); }
   .column h2 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
   .column h2 .count { background: var(--border); color: var(--text-dim); font-size: 10px; padding: 1px 7px; border-radius: 2px; }
+
   .col-new-request h2 { color: var(--highlighter-yellow); }
   .col-pm-review h2 { color: var(--cyan); }
-  .col-creative-team h2 { color: var(--electric-blue); color: #7878ff; }
+  .col-creative-team h2 { color: #7878ff; }
   .col-internal-review h2 { color: var(--neon-green); }
   .col-client-review h2 { color: var(--highlighter-yellow); }
   .col-final-delivery h2 { color: var(--cyan); }
   .col-done h2 { color: var(--graphite); }
+
   .card { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s, transform 0.1s; border-left: 3px solid var(--highlighter-yellow); }
   .card:hover { border-color: var(--highlighter-yellow); transform: translateY(-1px); }
+  .card.rush { border-left-color: var(--rush-red); }
+  .card.high { border-left-color: var(--high-amber); }
+  .card.revision { border-left-color: #7878ff; }
   .card p { font-size: 13px; line-height: 1.4; font-weight: 500; }
-  .card .meta { font-size: 11px; color: var(--text-dim); margin-top: 6px; font-weight: 400; }
-  .card .meta span { margin-right: 10px; }
+  .card .request-id { font-size: 10px; color: var(--text-dim); font-weight: 700; letter-spacing: 0.04em; margin-bottom: 4px; }
+  .card .meta { font-size: 11px; color: var(--text-dim); margin-top: 6px; font-weight: 400; display: flex; flex-wrap: wrap; gap: 8px; }
+  .card .priority-badge { font-size: 10px; padding: 1px 6px; border-radius: 2px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+  .card .priority-badge.rush { background: var(--rush-red); color: #000; }
+  .card .priority-badge.high { background: var(--high-amber); color: #000; }
   .card .has-details { font-size: 11px; color: var(--highlighter-yellow); margin-top: 6px; }
   .empty-col { color: var(--text-dim); font-size: 12px; font-style: italic; text-align: center; padding: 20px 0; }
-  .drag-over { outline: 2px dashed var(--highlighter-yellow); outline-offset: -2px; }
-  .dragging { opacity: 0.4; }
+
   #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(40,40,38,0.85); z-index: 100; align-items: center; justify-content: center; }
   #modal-overlay.active { display: flex; }
-  #modal-box { background: var(--surface); border: 1px solid var(--highlighter-yellow); border-radius: 4px; padding: 24px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative; }
+  #modal-box { background: var(--surface); border: 1px solid var(--highlighter-yellow); border-radius: 4px; padding: 24px; max-width: 640px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative; }
   #modal-box h3 { font-family: 'Instrument Serif', serif; font-size: 20px; font-weight: 400; margin-bottom: 8px; color: var(--chalk); }
   #modal-close { position: absolute; top: 12px; right: 16px; cursor: pointer; font-size: 20px; color: var(--text-dim); background: none; border: none; }
   #modal-close:hover { color: var(--highlighter-yellow); }
   .modal-status { display: inline-block; font-size: 11px; padding: 2px 10px; border-radius: 2px; background: var(--highlighter-yellow); color: var(--charcoal); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+  .modal-status.revision { background: #7878ff; }
+  .modal-status.approved { background: var(--neon-green); }
   .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--highlighter-yellow); margin: 16px 0 6px; font-weight: 700; }
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; }
+  .detail-grid .label { color: var(--text-dim); }
+  .detail-grid .value { color: var(--text); }
   .notes { font-size: 13px; line-height: 1.5; color: var(--text); }
   .no-content { font-size: 13px; color: var(--text-dim); font-style: italic; }
   .docs-list { list-style: none; }
   .docs-list li { margin: 4px 0; }
   .docs-list a { color: var(--highlighter-yellow); text-decoration: none; font-size: 13px; }
   .docs-list a:hover { text-decoration: underline; }
+
+  #loading { text-align: center; padding: 60px; color: var(--text-dim); font-size: 14px; }
+  #loading .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--highlighter-yellow); border-radius: 50%; animation: spin 0.6s linear infinite; margin-right: 8px; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #error { text-align: center; padding: 60px; color: var(--rush-red); font-size: 14px; display: none; }
 </style>
 </head>
 <body>
 <header>
-  <h1><span>[</span> ProRata <span>]</span> Content Production Pipeline</h1>
+  <h1><span>[</span> CR <span>]</span> Creative Operations Pipeline</h1>
   <div id="subtitle"></div>
+  <button id="refresh-btn" onclick="loadData()">↻ Refresh</button>
 </header>
+<div class="stats-bar" id="stats-bar"></div>
 <div class="tabs" id="tabs"></div>
+<div id="loading"><span class="spinner"></span> Loading live data...</div>
+<div id="error">Failed to load data. <a href="#" onclick="loadData(); return false;" style="color:var(--highlighter-yellow)">Retry</a></div>
 <div id="board"></div>
 <div id="modal-overlay">
   <div id="modal-box">
@@ -82,177 +118,206 @@
   </div>
 </div>
 <script>
-const DATA = {
-  "lastUpdated": "2026-02-23T16:00:00-08:00",
-  "projects": {
-    "All Requests": {
-      "tabClass": "tab-all",
-      "tasks": []
-    },
-    "Project 1": {
-      "tabClass": "tab-p1",
-      "tasks": [
-        {
-          "status": "pm-review",
-          "desc": "Video — Project 1",
-          "requester": "",
-          "project": "Project 1",
-          "assetType": "Video",
-          "desiredDate": "2026-02-19",
-          "submittedDate": "2026-02-18",
-          "notes": "",
-          "briefLink": "https://docs.google.com/open?id=16uucQ2ufNImyBpKKm_96TjXdIP8UQSU_XAA6j9URrXo",
-          "docs": [
-            {
-              "name": "Creative Brief",
-              "url": "https://docs.google.com/open?id=16uucQ2ufNImyBpKKm_96TjXdIP8UQSU_XAA6j9URrXo",
-              "icon": "📄"
-            }
-          ]
-        },
-        {
-          "status": "creative-team",
-          "desc": "Infographic — Project 1",
-          "requester": "",
-          "project": "Project 1",
-          "assetType": "Infographic",
-          "desiredDate": "2026-02-25",
-          "submittedDate": "2026-02-19",
-          "notes": "",
-          "briefLink": "https://docs.google.com/open?id=1aaJj4LirsYW8tIC84G1mQOOgKZs4BJ6nmbcE5PjbdAk",
-          "docs": [
-            {
-              "name": "Creative Brief",
-              "url": "https://docs.google.com/open?id=1aaJj4LirsYW8tIC84G1mQOOgKZs4BJ6nmbcE5PjbdAk",
-              "icon": "📄"
-            }
-          ]
-        }
-      ]
-    },
-    "Project 2": {
-      "tabClass": "tab-p2",
-      "tasks": [
-        {
-          "status": "pm-review",
-          "desc": "Social Media Post — Project 2",
-          "requester": "",
-          "project": "Project 2",
-          "assetType": "Social Media Post",
-          "desiredDate": "2026-02-26",
-          "submittedDate": "2026-02-18",
-          "notes": "",
-          "briefLink": "https://docs.google.com/open?id=1VctH0dEXQZpDxpEKopVDjnehEDGGfMiiHOvFTo9nRrY",
-          "docs": [
-            {
-              "name": "Creative Brief",
-              "url": "https://docs.google.com/open?id=1VctH0dEXQZpDxpEKopVDjnehEDGGfMiiHOvFTo9nRrY",
-              "icon": "📄"
-            }
-          ]
-        }
-      ]
-    },
-    "Project 3": {
-      "tabClass": "tab-p3",
-      "tasks": [
-        {
-          "status": "creative-team",
-          "desc": "Email Template — Project 3",
-          "requester": "",
-          "project": "Project 3",
-          "assetType": "Email Template",
-          "desiredDate": "2026-02-25",
-          "submittedDate": "2026-02-19",
-          "notes": "",
-          "briefLink": "https://docs.google.com/open?id=1VkMgh8Z77d1lQswG-ugfiEwJ9_UmvOIOA1jtmqBe5w4",
-          "docs": [
-            {
-              "name": "Creative Brief",
-              "url": "https://docs.google.com/open?id=1VkMgh8Z77d1lQswG-ugfiEwJ9_UmvOIOA1jtmqBe5w4",
-              "icon": "📄"
-            }
-          ]
-        }
-      ]
-    }
-  }
-};
-
+const API_URL = 'https://script.google.com/macros/s/AKfycbzB1Ug8FyWxChxgV9gPlhNPBObS4neAtQX4pn4czKPXO5glhyRUQyVlvgiP8-eXHspr/exec?action=kanban';
 const statuses = ['new-request','pm-review','creative-team','internal-review','client-review','final-delivery','done'];
 const statusLabels = {'new-request':'New Request','pm-review':'PM Review','creative-team':'Creative Team','internal-review':'Internal Review','client-review':'Client Review','final-delivery':'Final Delivery','done':'Done'};
-const formatDate = d => new Date(d).toLocaleString('en-US',{dateStyle:'medium',timeStyle:'short'});
+const formatDate = d => { if(!d) return '—'; try { return new Date(d).toLocaleString('en-US',{dateStyle:'medium'}); } catch(e) { return d; } };
+const formatDateTime = d => { if(!d) return '—'; try { return new Date(d).toLocaleString('en-US',{dateStyle:'medium',timeStyle:'short'}); } catch(e) { return d; } };
+
 const tabsEl = document.getElementById('tabs');
 const boardEl = document.getElementById('board');
 const overlay = document.getElementById('modal-overlay');
 const modalContent = document.getElementById('modal-content');
 const subtitle = document.getElementById('subtitle');
-subtitle.textContent = 'Last updated: ' + formatDate(DATA.lastUpdated);
+const statsBar = document.getElementById('stats-bar');
+const loadingEl = document.getElementById('loading');
+const errorEl = document.getElementById('error');
+const refreshBtn = document.getElementById('refresh-btn');
+
+let DATA = null;
+let activeTab = null;
+
 overlay.addEventListener('click', e => { if(e.target===overlay) overlay.classList.remove('active'); });
 document.getElementById('modal-close').addEventListener('click', () => overlay.classList.remove('active'));
 document.addEventListener('keydown', e => { if(e.key==='Escape') overlay.classList.remove('active'); });
-let activeTab = null;
-function getAllTasks() { let all = []; Object.keys(DATA.projects).forEach(n => { if(n!=="All Requests") DATA.projects[n].tasks.forEach(t => all.push(t)); }); return all; }
+
+async function loadData() {
+  refreshBtn.classList.add('loading');
+  refreshBtn.textContent = '↻ Loading...';
+  loadingEl.style.display = DATA ? 'none' : 'block';
+  errorEl.style.display = 'none';
+  
+  try {
+    const res = await fetch(API_URL);
+    DATA = await res.json();
+    loadingEl.style.display = 'none';
+    subtitle.textContent = 'Live — Last synced: ' + formatDateTime(DATA.lastUpdated);
+    renderTabs();
+    renderStats();
+    const savedTab = decodeURIComponent(window.location.hash.slice(1));
+    showProject(DATA.projects[savedTab] ? savedTab : Object.keys(DATA.projects)[0]);
+  } catch (err) {
+    console.error('Load error:', err);
+    loadingEl.style.display = 'none';
+    errorEl.style.display = 'block';
+  }
+  
+  refreshBtn.classList.remove('loading');
+  refreshBtn.textContent = '↻ Refresh';
+}
+
+function renderStats() {
+  if (!DATA) return;
+  const allTasks = getAllTasks();
+  const total = allTasks.length;
+  const rush = allTasks.filter(t => t.priority === 'Rush').length;
+  const high = allTasks.filter(t => t.priority === 'High').length;
+  const flagged = allTasks.filter(t => t.rawStatus && t.rawStatus.includes('Lead Time')).length;
+  const inReview = allTasks.filter(t => t.status === 'internal-review' || t.status === 'client-review').length;
+  const revisions = allTasks.filter(t => t.rawStatus && t.rawStatus.includes('Revisions')).length;
+  const done = allTasks.filter(t => t.status === 'done').length;
+  
+  statsBar.innerHTML = `
+    <div class="stat"><strong>${total}</strong>Total</div>
+    ${rush ? `<div class="stat rush"><strong>${rush}</strong>Rush</div>` : ''}
+    ${high ? `<div class="stat high"><strong>${high}</strong>High Priority</div>` : ''}
+    ${flagged ? `<div class="stat flagged"><strong>${flagged}</strong>Lead Time Flagged</div>` : ''}
+    <div class="stat"><strong>${inReview}</strong>In Review</div>
+    ${revisions ? `<div class="stat"><strong>${revisions}</strong>In Revisions</div>` : ''}
+    <div class="stat"><strong>${done}</strong>Done</div>
+  `;
+}
+
+function renderTabs() {
+  tabsEl.innerHTML = '';
+  Object.keys(DATA.projects).forEach(name => {
+    const tab = document.createElement('div');
+    tab.className = 'tab';
+    tab.dataset.project = name;
+    const tasks = name === 'All Requests' ? getAllTasks() : DATA.projects[name].tasks;
+    tab.textContent = name + (tasks.length > 0 ? ` (${tasks.length})` : '');
+    tab.addEventListener('click', () => showProject(name));
+    tabsEl.appendChild(tab);
+  });
+}
+
+function getAllTasks() {
+  let all = [];
+  Object.keys(DATA.projects).forEach(n => {
+    if (n !== 'All Requests') DATA.projects[n].tasks.forEach(t => all.push(t));
+  });
+  return all;
+}
+
 function showProject(name) {
-  const tasks = name==="All Requests" ? getAllTasks() : DATA.projects[name].tasks;
+  const tasks = name === 'All Requests' ? getAllTasks() : DATA.projects[name].tasks;
   activeTab = name;
+  
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelector(`.tab[data-project="${name}"]`).classList.add('active');
+  const activeTabEl = document.querySelector(`.tab[data-project="${name}"]`);
+  if (activeTabEl) activeTabEl.classList.add('active');
+  
   boardEl.innerHTML = '';
-  let draggedTask = null;
+  
   statuses.forEach(s => {
-    const col = document.createElement('div'); col.className = 'column col-'+s; col.dataset.status = s;
-    const colTasks = tasks.filter(t => t.status===s);
+    const col = document.createElement('div');
+    col.className = 'column col-' + s;
+    col.dataset.status = s;
+    const colTasks = tasks.filter(t => t.status === s);
     col.innerHTML = `<h2>${statusLabels[s]}<span class="count">${colTasks.length}</span></h2>`;
-    if(!colTasks.length) col.innerHTML += '<div class="empty-col">No tasks</div>';
-    col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drag-over'); });
-    col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
-    col.addEventListener('drop', e => { e.preventDefault(); col.classList.remove('drag-over'); if(draggedTask&&draggedTask.status!==s){draggedTask.status=s;showProject(activeTab);} });
+    
+    if (!colTasks.length) {
+      col.innerHTML += '<div class="empty-col">No tasks</div>';
+    }
+    
     colTasks.forEach(t => {
-      const card = document.createElement('div'); card.className='card'; card.draggable=true;
-      card.addEventListener('dragstart',()=>{draggedTask=t;card.classList.add('dragging');});
-      card.addEventListener('dragend',()=>{draggedTask=null;card.classList.remove('dragging');});
-      let m='<div class="meta">';
-      if(t.requester) m+=`<span>👤 ${t.requester}</span>`;
-      if(t.assetType) m+=`<span>📎 ${t.assetType}</span>`;
-      if(t.desiredDate) m+=`<span>📅 ${t.desiredDate}</span>`;
-      m+='</div>';
-      const hasInfo=(t.notes||(t.docs&&t.docs.length>0)||t.briefLink);
-      card.innerHTML=`<p>${t.desc}</p>${m}${hasInfo?'<div class="has-details">[ Click for details ]</div>':''}`;
-      card.addEventListener('click',()=>openCard(t));
+      const card = document.createElement('div');
+      let cardClass = 'card';
+      if (t.priority === 'Rush') cardClass += ' rush';
+      else if (t.priority === 'High') cardClass += ' high';
+      if (t.rawStatus && t.rawStatus.includes('Revisions')) cardClass += ' revision';
+      card.className = cardClass;
+      
+      let priorityBadge = '';
+      if (t.priority === 'Rush') priorityBadge = '<span class="priority-badge rush">RUSH</span> ';
+      else if (t.priority === 'High') priorityBadge = '<span class="priority-badge high">HIGH</span> ';
+      
+      let revBadge = '';
+      if (t.revisionRound && t.revisionRound > 0) {
+        revBadge = ` <span style="font-size:10px;color:#7878ff;">R${t.revisionRound}</span>`;
+      }
+      
+      const desc = t.assetType && t.assetType.trim() ? `${t.assetType} — ${t.project}` : (t.desc || 'Untitled');
+      
+      let meta = '<div class="meta">';
+      if (t.requester) meta += `<span>👤 ${t.requester}</span>`;
+      if (t.desiredDate) meta += `<span>📅 ${t.desiredDate}</span>`;
+      if (t.numAssets && t.numAssets !== '') meta += `<span>📎 ${t.numAssets}</span>`;
+      meta += '</div>';
+      
+      card.innerHTML = `
+        <div class="request-id">${t.id || ''}${revBadge}</div>
+        <p>${priorityBadge}${desc}</p>
+        ${meta}
+        ${(t.docs && t.docs.length > 0) || t.notes ? '<div class="has-details">[ Click for details ]</div>' : ''}
+      `;
+      
+      card.addEventListener('click', () => openCard(t));
       col.appendChild(card);
     });
+    
     boardEl.appendChild(col);
   });
-  window.location.hash=encodeURIComponent(name);
+  
+  window.location.hash = encodeURIComponent(name);
 }
+
 function openCard(task) {
-  let h=`<h3>${task.desc}</h3><span class="modal-status">${statusLabels[task.status]}</span>`;
-  if(task.requester||task.project||task.assetType||task.desiredDate){
-    h+=`<div class="section-label">Request Details</div><div class="notes">`;
-    if(task.requester) h+=`<strong>Requester:</strong> ${task.requester}<br>`;
-    if(task.project) h+=`<strong>Project:</strong> ${task.project}<br>`;
-    if(task.assetType) h+=`<strong>Asset Type:</strong> ${task.assetType}<br>`;
-    if(task.desiredDate) h+=`<strong>Desired Date:</strong> ${task.desiredDate}<br>`;
-    if(task.submittedDate) h+=`<strong>Submitted:</strong> ${task.submittedDate}<br>`;
-    h+='</div>';
+  const statusClass = task.rawStatus && task.rawStatus.includes('Revisions') ? 'revision' : 
+                      task.rawStatus && task.rawStatus.includes('Approved') ? 'approved' : '';
+  
+  let h = `<h3>${task.id} — ${task.assetType || 'Request'}</h3>`;
+  h += `<span class="modal-status ${statusClass}">${task.rawStatus || task.status}</span>`;
+  
+  h += `<div class="section-label">Request Details</div>`;
+  h += `<div class="detail-grid">`;
+  if (task.requester) { h += `<div class="label">Requester</div><div class="value">${task.requester}</div>`; }
+  if (task.project) { h += `<div class="label">Brand / Project</div><div class="value">${task.project}</div>`; }
+  if (task.assetType) { h += `<div class="label">Creative Type</div><div class="value">${task.assetType}</div>`; }
+  if (task.priority) { h += `<div class="label">Priority</div><div class="value">${task.priority}</div>`; }
+  if (task.numAssets) { h += `<div class="label">Assets</div><div class="value">${task.numAssets}</div>`; }
+  if (task.desiredDate) { h += `<div class="label">Live Date</div><div class="value">${task.desiredDate}</div>`; }
+  if (task.submittedDate) { h += `<div class="label">Submitted</div><div class="value">${task.submittedDate}</div>`; }
+  if (task.assignedTo) { h += `<div class="label">Assigned To</div><div class="value">${task.assignedTo}</div>`; }
+  if (task.revisionRound && task.revisionRound > 0) { h += `<div class="label">Revision Round</div><div class="value">${task.revisionRound}</div>`; }
+  h += `</div>`;
+  
+  if (task.goal) {
+    h += `<div class="section-label">Business Goal</div>`;
+    h += `<div class="notes">${task.goal}</div>`;
   }
-  h+=`<div class="section-label">Notes</div>`;
-  h+=task.notes?`<div class="notes">${task.notes}</div>`:`<div class="no-content">No notes yet</div>`;
-  if(task.briefLink) h+=`<div class="section-label">Creative Brief</div><div class="notes"><a href="${task.briefLink}" target="_blank" style="color:var(--highlighter-yellow)">📄 Open Brief</a></div>`;
-  h+=`<div class="section-label">Documents</div>`;
-  if(task.docs&&task.docs.length>0){h+='<ul class="docs-list">';task.docs.forEach(d=>{h+=`<li><a href="${d.url}" target="_blank">${d.icon} ${d.name}</a></li>`;});h+='</ul>';}
-  else h+='<div class="no-content">No documents yet</div>';
-  modalContent.innerHTML=h;overlay.classList.add('active');
+  
+  h += `<div class="section-label">Notes</div>`;
+  h += task.notes ? `<div class="notes">${task.notes}</div>` : `<div class="no-content">No notes yet</div>`;
+  
+  h += `<div class="section-label">Documents</div>`;
+  if (task.docs && task.docs.length > 0) {
+    h += '<ul class="docs-list">';
+    task.docs.forEach(d => { h += `<li><a href="${d.url}" target="_blank">${d.icon} ${d.name}</a></li>`; });
+    h += '</ul>';
+  } else {
+    h += '<div class="no-content">No documents yet</div>';
+  }
+  
+  modalContent.innerHTML = h;
+  overlay.classList.add('active');
 }
-Object.keys(DATA.projects).forEach(name=>{
-  const tab=document.createElement('div');tab.className='tab';tab.dataset.project=name;
-  const tasks=name==="All Requests"?getAllTasks():DATA.projects[name].tasks;
-  tab.textContent=name+(tasks.length>0?` (${tasks.length})`:'');
-  tab.addEventListener('click',()=>showProject(name));tabsEl.appendChild(tab);
-});
-const hp=decodeURIComponent(window.location.hash.slice(1));
-showProject(DATA.projects[hp]?hp:Object.keys(DATA.projects)[0]);
+
+// Auto-refresh every 5 minutes
+setInterval(loadData, 5 * 60 * 1000);
+
+// Initial load
+loadData();
 </script>
 </body>
 </html>
